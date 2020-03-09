@@ -1,67 +1,78 @@
-# Microsoft Graph (Swift) を使った iOS 用 Microsoft Office 365 Connect サンプル
+---
+page_type: sample 
+products:
+- office-365
+- ms-graph
+languages:
+- swift
+extensions:
+  contentType: samples
+  technologies:
+  - Microsoft Graph
+  - Azure AD
+  - Microsoft identity platform
+  services:
+  - Office 365
+  - Microosft identity platform
+  platforms:
+  - iOS
+  createdDate: 1/27/2016 3:56:28 PM
+---
+# Microsoft Graph を使った iOS 用 Microsoft Office 365 Connect サンプル (Swift)
 
-Office 365 への接続は、各 iOS アプリが Microsoft Office 365 のサービスおよびデータの操作を開始するために必要な最初の手順です。このサンプルは、Microsoft Graph (旧称 Office 365 統合 API) を介して、1 つの API に接続して呼び出す方法を示しています。
+各 iOS アプリで Office 365 のサービスとデータの操作を開始するため、最初に Microsoft Office 365 に接続する必要があります。このサンプルでは、Microsoft Graph 経由で接続を行い、1 つの API を呼び出す方法を示します。
 
-> 注:このサンプルの Objective-C バージョンについては、「[O365-iOS-Microsoft-Graph-Connect](https://github.com/OfficeDev/O365-iOS-Microsoft-Graph-Connect)」をご覧ください。また、このサンプルをより迅速に実行するため、「[Office 365 API を使う](http://dev.office.com/getting-started/office365apis?platform=option-ios#setup)」ページに記載された登録の簡略化もお試しください。
- 
+> **注:**このサンプルの Objective-C バージョンについては、「[O365-iOS-Microsoft-Graph-Connect](https://github.com/microsoftgraph/ios-objectivec-connect-rest-sample)」を参照してください。
+
 ## 前提条件
-* 
-            Apple 社の [Xcode](https://developer.apple.com/xcode/downloads/)。
-* 依存関係マネージャーとしての [CocoaPods](https://guides.cocoapods.org/using/using-cocoapods.html) のインストール。
-* Office 365 アカウント。[Office 365 Developer](https://aka.ms/devprogramsignup) サブスクリプションにサイン アップすることができます。ここには、Office 365 アプリのビルドを開始するために必要なリソースが含まれています。
 
-     > 注: サブスクリプションが既に存在する場合、上記のリンクをクリックすると、*申し訳ありません、現在のアカウントに追加できません* と表示されたページに移動します。その場合は、現在使用している Office 365 サブスクリプションのアカウントをご利用いただけます。Mic
-* アプリケーションを登録する Microsoft Azure テナント。Microsoft Azure Active Directory (AD) は、アプリケーションが認証と承認に使用する ID サービスを提供します。試用版サブスクリプションは、[Microsoft Azure](https://account.windowsazure.com/SignUp) で取得できます。
+- [Xcode](https://developer.apple.com/xcode/downloads/) バージョン 10.2.1
+- [CocoaPods](https://cocoapods.org)
+- Office 365 アカウント。Office 365 アプリのビルドを開始するために必要なリソースを含む [Office 365 Developer サブスクリプション](https://aka.ms/devprogramsignup)にサインアップできます。
 
-     > 重要事項：Azure サブスクリプションが Office 365 テナントにバインドされていることを確認する必要があります。確認するには、Active Directory チームのブログ投稿「[複数の Windows Azure Active Directory を作成および管理する](http://blogs.technet.com/b/ad/archive/2013/11/08/creating-and-managing-multiple-windows-azure-active-directories.aspx)」を参照してください。「**新しいディレクトリを追加する**」セクションで、この方法について説明しています。また、詳細については、「[Office 365 開発環境をセットアップする](https://msdn.microsoft.com/office/office365/howto/setup-development-environment#bk_CreateAzureSubscription)」や「**Office 365 アカウントを Azure AD と関連付けてアプリを作成および管理する**」セクションも参照してください。
-      
-* Azure に登録されたアプリケーションのクライアント ID とリダイレクト URI の値。このサンプル アプリケーションには、**Microsoft Graph** の**ユーザーとしてメールを送信する**アクセス許可を付与する必要があります。登録を作成するには、「[Office 365 API にアクセスできるようにアプリを Azure AD に手動で登録する](https://msdn.microsoft.com/en-us/office/office365/howto/add-common-consent-manually)」の「**Azure 管理ポータルにネイティブ アプリを登録する**」と、適切なアクセス許可を付与するためのサンプル Wiki の「[適切なアクセス許可を付与する](https://github.com/OfficeDev/O365-iOS-Microsoft-Graph-Connect/wiki/Grant-permissions-to-the-Connect-application-in-Azure)」をご覧ください。
+## サンプル機能を接続する
 
+このサンプルでは、Microsoft Graph REST エンドポイントに対する REST 呼び出しをいくつか例示します。
 
-       
-## Xcode でこのサンプルを実行する
+- [ユーザー](https://developer.microsoft.com/en-us/graph/docs/api-reference/v1.0/api/profilephoto_get) エンドポイントからの、*サインインしているユーザーのプロファイル画像の GET*。
+- [ユーザーの OneDrive のルート フォルダーへプロファイル画像をアップロード](https://developer.microsoft.com/en-us/graph/docs/api-reference/v1.0/api/driveitem_put_content)するための PUT 要求
+- [ドライブ上のアイテムの共有リンクを作成](https://developer.microsoft.com/en-us/graph/docs/api-reference/v1.0/api/driveitem_createlink)して他のユーザーがアップロードした写真にアクセスできるようにするための、OneDrive への要求の POST
+- 写真の添付ファイル付きで[メール メッセージを送信](https://developer.microsoft.com/en-us/graph/docs/api-reference/v1.0/api/user_sendmail)するための要求の POST
 
-1. このリポジトリの複製を作成する
-2. CocoaPods を使って、Active Directory 認証ライブラリ (ADAL) iOS の依存関係をインポートします。
-        
-	     pod 'ADALiOS', '= 1.2.4'
+## アプリを登録して構成する
 
- このサンプル アプリには、プロジェクトに ADAL コンポーネント (pods) を取り込む podfile がすでに含まれています。**ターミナル**からプロジェクトに移動して次を実行するだけです。 
-        
-        pod install
-        
-   詳しくは、[その他の技術情報](#AdditionalResources)の「**CocoaPods を使う**」をご覧ください。
-  
-3. **O365-iOS-Microsoft-Graph-Connect-Swift.xcworkspace** を開きます。
-4. **AuthenticationConstants.swift** を開きます。**ClientID** と **RedirectUri** の各値がファイルの一番上に追加されていることが分かります。ここで必要な値を指定します。
+1. ブラウザーを開き、[Azure Active Directory 管理センター](https://aad.portal.azure.com)に移動し、**個人用アカウント** (別名:Microsoft アカウント) か**職場または学校のアカウント**を使用してログインします。
 
-        // You will set your application's clientId and redirect URI.
-    	static let ClientId = "ENTER_YOUR_CLIENT_ID"
-    	static let RedirectUri = NSURL.init(string: "ENTER_YOUR_REDIRECT_URI")
-    	static let Authority = "https://login.microsoftonline.com/common"
-    	static let ResourceId = "https://graph.microsoft.com"
-    
-    > 注: CLIENT_ID と REDIRECT_URI の値がない場合は、[ネイティブ クライアント アプリケーションを Azure に追加](https://msdn.microsoft.com/library/azure/dn132599.aspx#BKMK_Adding)し、CLIENT_ID と REDIRECT_URI を書き留めます。
+1. 左側のナビゲーションで \[**Azure Active Directory**] を選択し、次に \[**管理**] で \[**アプリの登録**] を選択します。
 
-5. サンプルを実行します。
+1. **\[新規登録]** を選択します。\[**アプリケーションの登録**] ページで、次のように値を設定します。
 
+    - \[**名称**] を、"`Swift REST Connect Sample`" にします。
+    - \[**サポートされているアカウントの種類**] を \[**任意の組織のディレクトリ内のアカウントと個人用の Microsoft アカウント**] に設定します。
+    - \[**リダイレクト URI**] で、ドロップ ダウンを \[**パブリック クライアント (モバイルとデスクトップ)**] に変更し、値を "`msauth.com.microsoft.O365-iOS-Microsoft-Graph-Connect-Swift-REST://auth`" に設定します。
+
+1. \[**登録**] を選択します。\[**Swift REST Connect Sample**] ページで、\[**アプリケーション (クライアント) ID**] の値をコピーして保存します。この値は次の手順で必要です。
+
+### クライアント ID を使用してサンプルを更新する
+
+1. **O365-iOS-Microsoft-Graph-Connect-Swift.xcworkspace** を開きます。
+
+1. **AuthenticationConstants.swift** を開き、`<your-client-id>` を、前の手順でコピーしたアプリケーション ID に置き換えます。
+
+1. サンプルを実行します。
+
+## 投稿
+
+このサンプルに投稿する場合は、[CONTRIBUTING.MD](/CONTRIBUTING.md) を参照してください。
+
+このプロジェクトでは、[Microsoft Open Source Code of Conduct (Microsoft オープン ソース倫理規定)](https://opensource.microsoft.com/codeofconduct/) が採用されています。詳細については、「[Code of Conduct の FAQ (倫理規定の FAQ)](https://opensource.microsoft.com/codeofconduct/faq/)」を参照してください。また、その他の質問やコメントがあれば、[opencode@microsoft.com](mailto:opencode@microsoft.com) までお問い合わせください。
 
 ## 質問とコメント
 
-Office 365 iOS Microsoft Graph Connect Swift プロジェクトについて、Microsoft にフィードバックをお寄せください。質問や提案につきましては、このリポジトリの「[問題](https://github.com/OfficeDev/O365-iOS-Microsoft-Graph-Connect-Swift/issues)」セクションに送信できます。
+Office 365 iOS Microsoft Graph Connect Swift プロジェクトに関するフィードバックをお寄せください。質問や提案は、このリポジトリの「[問題](https://github.com/microsoftgraph/ios-swift-connect-rest-sample/issues)」セクションで送信できます。
 
-Office 365 開発全般の質問につきましては、「[スタック オーバーフロー](http://stackoverflow.com/questions/tagged/Office365+API)」に投稿してください。質問またはコメントには、必ず [Office365] および [MicrosoftGraph] のタグを付けてください。
-
-
-## その他の技術情報
-
-* [Office デベロッパー センター](http://dev.office.com/)
-* [O365-iOS-Microsoft-Graph-Connect-Obj-C](https://github.com/OfficeDev/O365-iOS-Microsoft-Graph-Connect)
-* [Microsoft Graph 概要ページ](https://graph.microsoft.io)
-* [CocoaPods を使う](https://guides.cocoapods.org/using/using-cocoapods.html)
+Microsoft Graph 開発全般の質問については、「[Stack Overflow](http://stackoverflow.com/questions/tagged/MicrosoftGraph)」に投稿してください。質問やコメントには、必ず "MicrosoftGraph" とタグを付けてください。
 
 ## 著作権
-Copyright (c) 2016 Microsoft. All rights reserved.
 
-
-
+Copyright (c) 2017 Microsoft.All rights reserved.
